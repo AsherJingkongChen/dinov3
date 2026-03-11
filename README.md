@@ -814,7 +814,7 @@ CHMv2 uses the DINOv3 ViT-L/16 satellite as the backbone, available after reques
 
 Download link: https://ai.meta.com/resources/models-and-libraries/chmv2-downloads/
 
-```
+```python
 import torch
 from dinov3.hub.backbones import Weights
 
