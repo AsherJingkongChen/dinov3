@@ -135,9 +135,10 @@ def _make_dinov3_vit(
                 weights=weights,
                 hash=hash,
             )
+        elif is_url(weights):
+            state_dict = torch.hub.load_state_dict_from_url(weights, map_location="cpu", check_hash=check_hash)
         else:
-            url = convert_path_or_url_to_url(weights)
-        state_dict = torch.hub.load_state_dict_from_url(url, map_location="cpu", check_hash=check_hash)
+            state_dict = torch.load(weights, map_location="cpu")
         model.load_state_dict(state_dict, strict=True)
     else:
         model.init_weights()
