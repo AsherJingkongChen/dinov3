@@ -4,14 +4,13 @@
 # the terms of the DINOv3 License Agreement.
 
 import os
+import torch
 from enum import Enum
 from typing import List, Optional, Union
 from urllib.parse import urlparse
 from pathlib import Path
 
-import torch
-
-from .utils import DINOV3_BASE_URL
+from .utils import _DINOV3_BASE_URL, _safe_load_state_dict_from_url
 
 
 class Weights(Enum):
@@ -57,7 +56,7 @@ def _make_dinov3_vit_model_url(
     hash_suffix = f"-{hash}" if hash else ""
     model_dir = f"{model_name}_{model_arch}"
     model_filename = f"{model_name}_{model_arch}_pretrain_{weights_name}{version_suffix}{hash_suffix}.pth"
-    return os.path.join(DINOV3_BASE_URL, model_dir, model_filename)
+    return os.path.join(_DINOV3_BASE_URL, model_dir, model_filename)
 
 
 def _make_dinov3_vit(
@@ -136,7 +135,7 @@ def _make_dinov3_vit(
                 hash=hash,
             )
         elif is_url(weights):
-            state_dict = torch.hub.load_state_dict_from_url(weights, map_location="cpu", check_hash=check_hash)
+            state_dict = _safe_load_state_dict_from_url(weights, map_location="cpu", check_hash=check_hash)
         else:
             state_dict = torch.load(weights, map_location="cpu")
         model.load_state_dict(state_dict, strict=True)
@@ -157,7 +156,7 @@ def _make_dinov3_convnext_model_url(
 
     model_dir = f"{model_name}_{compact_arch_name}"
     model_filename = f"{model_name}_{compact_arch_name}_pretrain_{weights_name}{hash_suffix}.pth"
-    return os.path.join(DINOV3_BASE_URL, model_dir, model_filename)
+    return os.path.join(_DINOV3_BASE_URL, model_dir, model_filename)
 
 
 def _make_dinov3_convnext(
@@ -170,6 +169,7 @@ def _make_dinov3_convnext(
     pretrained: bool = True,
     weights: Union[Weights, str] = Weights.LVD1689M,
     hash: Optional[str] = None,
+    check_hash: bool = False,
     **kwargs,
 ):
     from ..models.convnext import ConvNeXt
@@ -192,9 +192,10 @@ def _make_dinov3_convnext(
                 weights=weights,
                 hash=hash,
             )
+        elif is_url(weights):
+            state_dict = _safe_load_state_dict_from_url(weights, map_location="cpu", check_hash=check_hash)
         else:
-            url = convert_path_or_url_to_url(weights)
-        state_dict = torch.hub.load_state_dict_from_url(url, map_location="cpu")
+            state_dict = torch.load(weights, map_location="cpu")
         model.load_state_dict(state_dict, strict=True)
     return model
 
