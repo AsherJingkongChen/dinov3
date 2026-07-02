@@ -321,7 +321,7 @@ class DinoVisionTransformer(nn.Module):
         elif return_class_token and return_extra_tokens:
             return tuple(zip(outputs, class_tokens, extra_tokens))
 
-    def forward(self, *args, is_training: bool = False, **kwargs) -> List[Dict[str, Tensor]] | Tensor:
+    def forward(self, *args, is_training: bool = True, **kwargs) -> List[Dict[str, Tensor]] | Tensor:
         ret = self.forward_features(*args, **kwargs)
         if is_training:
             return ret
